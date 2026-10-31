@@ -157,6 +157,7 @@ def pos_string(gd, tG, ph, pr):
     return main + ('/' + minor if minor else '')
 
 
+WON_AWARDS = {'MVP-1', 'CYA-1', 'ROY-1', 'GG', 'SS'}
 AWARD_ORDER = {'AS': 0, 'MVP': 1, 'CYA': 2, 'ROY': 3, 'GG': 4, 'SS': 5}
 
 
@@ -635,15 +636,19 @@ def main():
             'died': jv(pr.deathYear) if pd.notna(pr.deathYear) else None,
         }
         # "notable": something in the Awards column, or a bold/italic (league / MLB leader) season stat
-        notable = 0
+        notable = won = 0
         for key in ('bat', 'pit'):
             for r in entry.get(key) or []:
-                if r['k'] in ('y', 'T', 'x') and (r['v'][-1] or any(v in ('b', 'i', 'bi') for v in (r.get('f') or {}).values())):
-                    notable = 1
+                if r['k'] in ('y', 'T', 'x'):
+                    if r['v'][-1] or any(v in ('b', 'i', 'bi') for v in (r.get('f') or {}).values()):
+                        notable = 1
+                    # "won": first place in MVP / Cy Young / Rookie of the Year voting, a Gold Glove or a Silver Slugger
+                    if any(a in WON_AWARDS for a in (r['v'][-1] or '').split(',')):
+                        won = 1
         shards[shard_of(pid)][pid] = entry
         ys = sorted(years)
         index.append({'i': pid, 'n': name, 'm': mlbam, 'y': [ys[0], ys[-1]], 'ys': ys, 't': kind, 'pos': pos_main,
-                      'pa': pa_c, 'ip': ip_c, 'gp': gp_c, 'hp': hit_pos, 'ps': sorted(season_pos), 'g': g_all, 'f': sorted(frs), 'a': 1 if pid in active_ids else 0, 'nt': notable})
+                      'pa': pa_c, 'ip': ip_c, 'gp': gp_c, 'hp': hit_pos, 'ps': sorted(season_pos), 'g': g_all, 'f': sorted(frs), 'a': 1 if pid in active_ids else 0, 'nt': notable, 'aw': won})
 
     # ---- write
     out = os.path.abspath(args.out)

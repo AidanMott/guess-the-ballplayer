@@ -13,6 +13,7 @@ const filterSummary = (f) =>
     `${f.yearFrom}–${f.yearTo}`,
     TYPE_LABEL[f.type],
     f.notable ? 'notable' : null,
+    f.winners ? 'award winners' : null,
     f.type !== 'pit' && f.positions.length ? f.positions.join('/') : null,
     f.teams.length ? `${f.teamMode === 'and' && f.teams.length > 1 ? 'all of ' : ''}${f.teams.length} team${f.teams.length > 1 ? 's' : ''}` : 'all teams',
   ].filter(Boolean).join(' · ');

@@ -83,8 +83,12 @@ export default function Filters({ meta, players, filters, setFilters, onStart, s
               <input type="checkbox" checked={!!filters.notable} onChange={(e) => set('notable', e.target.checked)} />
               Notable players
             </label>
+            <label className={`chip${filters.winners ? ' on' : ''}`}>
+              <input type="checkbox" checked={!!filters.winners} onChange={(e) => set('winners', e.target.checked)} />
+              Award winners only
+            </label>
           </div>
-          <p className="muted small">Only players with an award or award votes, or who led their league in a stat.</p>
+          <p className="muted small">Notable: an award or award votes, or led their league in a stat. Award winners: won an MVP, Cy Young, Rookie of the Year, Gold Glove or Silver Slugger.</p>
         </fieldset>
         <fieldset>
           <legend>Career minimums</legend>
