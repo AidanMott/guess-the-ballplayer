@@ -1,0 +1,7 @@
+node_modules
+dist
+__pycache__
+# data-building inputs: big, downloaded separately (see README)
+Lahman
+register
+extra-*
