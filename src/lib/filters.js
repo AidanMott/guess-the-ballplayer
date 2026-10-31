@@ -1,6 +1,6 @@
 export const DEFAULT_FILTERS = {
   yearFrom: 2000, yearTo: 2025, type: 'both', minPA: 4000, minIP: 600, minG: 0,
-  positions: [], teams: [], teamMode: 'or',
+  positions: [], teams: [], teamMode: 'or', notable: true,
 };
 
 // Position chips (hitting positions, plus P when pitchers are in the pool).
@@ -20,6 +20,7 @@ export function saveFilters(f) {
   try { localStorage.setItem('rg.filters', JSON.stringify(f)); } catch { /* ignore */ }
 }
 
+// "Notable" players have something in their Awards column or led a league in some stat (p.nt, set by the data build).
 // Which minimums apply depends on the player type; options that are hidden in the UI are ignored here too.
 //   Hitters  -> plate appearances (+ position)
 //   Pitchers -> innings pitched and games pitched
@@ -31,6 +32,7 @@ export function eligible(players, f) {
   const minPA = Number(f.minPA) || 0, minIP = Number(f.minIP) || 0, minG = Number(f.minG) || 0;
   const pos = new Set((f.positions || []).filter((x) => f.type === 'both' || x !== 'P'));
   return players.filter((p) => {
+    if (f.notable && !p.nt) return false;
     if (!p.ys.some((y) => y >= from && y <= to)) return false;
     if (teams.length) {
       const ok = needAll ? teams.every((t) => p.f.includes(t)) : teams.some((t) => p.f.includes(t));

@@ -634,10 +634,16 @@ def main():
             'final': str(pr.finalGame)[:10] if pd.notna(pr.finalGame) else None,
             'died': jv(pr.deathYear) if pd.notna(pr.deathYear) else None,
         }
+        # "notable": something in the Awards column, or a bold/italic (league / MLB leader) season stat
+        notable = 0
+        for key in ('bat', 'pit'):
+            for r in entry.get(key) or []:
+                if r['k'] in ('y', 'T', 'x') and (r['v'][-1] or any(v in ('b', 'i', 'bi') for v in (r.get('f') or {}).values())):
+                    notable = 1
         shards[shard_of(pid)][pid] = entry
         ys = sorted(years)
         index.append({'i': pid, 'n': name, 'm': mlbam, 'y': [ys[0], ys[-1]], 'ys': ys, 't': kind, 'pos': pos_main,
-                      'pa': pa_c, 'ip': ip_c, 'gp': gp_c, 'hp': hit_pos, 'ps': sorted(season_pos), 'g': g_all, 'f': sorted(frs), 'a': 1 if pid in active_ids else 0})
+                      'pa': pa_c, 'ip': ip_c, 'gp': gp_c, 'hp': hit_pos, 'ps': sorted(season_pos), 'g': g_all, 'f': sorted(frs), 'a': 1 if pid in active_ids else 0, 'nt': notable})
 
     # ---- write
     out = os.path.abspath(args.out)

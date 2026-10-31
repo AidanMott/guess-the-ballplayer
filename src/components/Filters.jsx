@@ -77,6 +77,16 @@ export default function Filters({ meta, players, filters, setFilters, onStart, s
           </div>
         </fieldset>
         <fieldset>
+          <legend>Player pool</legend>
+          <div className="row">
+            <label className={`chip${filters.notable ? ' on' : ''}`}>
+              <input type="checkbox" checked={!!filters.notable} onChange={(e) => set('notable', e.target.checked)} />
+              Notable players
+            </label>
+          </div>
+          <p className="muted small">Only players with an award or award votes, or who led their league in a stat.</p>
+        </fieldset>
+        <fieldset>
           <legend>Career minimums</legend>
           <div className="row mins">
             {filters.type !== 'pit' && (
