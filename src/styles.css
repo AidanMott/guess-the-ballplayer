@@ -249,3 +249,11 @@ button:active:not(:disabled) { transform: translateY(1px); }
 @keyframes hint-nudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(4px); } }
 @keyframes hint-nudge-l { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-4px); } }
 @media (prefers-reduced-motion: reduce) { .scroll-hint button { animation: none; } }
+
+/* phone: centre everything in the result card */
+@media (max-width: 800px) {
+  .summary { text-align: center; justify-items: center; }
+  .summary .who { flex-direction: column; align-items: center; }
+  .summary .facts { justify-items: center; width: 100%; }
+  .summary .summary-actions { flex-direction: column; align-items: center; gap: 12px; }
+}
