@@ -82,6 +82,36 @@ export default function App() {
   };
   const giveUp = () => { setResult('gave_up'); setPhase('over'); };
 
+  // Keyboard shortcuts (they step aside whenever the person is typing in, or pressing, a control).
+  //   result screen:  Enter / Space / Escape -> next player
+  //   guessing:       Escape -> "Give up?", Escape again -> give up;  any letter/number -> jump to the guess box
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.defaultPrevented || e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
+      const t = e.target;
+      const tag = t && t.tagName;
+      const typing = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (t && t.isContentEditable);
+      const onGuessBox = t && t.id === 'guess-input';
+      const pressable = tag === 'BUTTON' || tag === 'A' || tag === 'SUMMARY';
+      if (phase === 'over') {
+        if (((e.key === 'Enter' || e.key === ' ') && !pressable || e.key === 'Escape') && !typing) { e.preventDefault(); start(); }
+      } else if (phase === 'playing') {
+        if (e.key === 'Escape') {
+          if (typing && !onGuessBox) return;
+          e.preventDefault();
+          if (confirmGiveUp) giveUp(); else setConfirmGiveUp(true);
+        } else if (e.key.length === 1 && onGuessBox && confirmGiveUp) {
+          setConfirmGiveUp(false);   // typing a guess dismisses the "give up?" prompt
+        } else if (e.key.length === 1 && e.key !== ' ' && !typing) {
+          setConfirmGiveUp(false);
+          document.getElementById('guess-input')?.focus();   // the key press then types into the box
+        }
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  });
+
   if (error) return <main className="wrap"><p className="warn">Couldn’t load the player data: {String(error.message || error)}</p></main>;
   if (!data || !filters) return <main className="wrap"><p className="muted">Loading players…</p></main>;
 

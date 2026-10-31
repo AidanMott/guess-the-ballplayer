@@ -20,7 +20,6 @@ export default function SearchBox({ players, norm, guessed, onGuess, disabled })
     if (e.key === 'ArrowDown') { e.preventDefault(); setActive((a) => Math.min(a + 1, results.length - 1)); }
     else if (e.key === 'ArrowUp') { e.preventDefault(); setActive((a) => Math.max(a - 1, 0)); }
     else if (e.key === 'Enter') { e.preventDefault(); pick(results[active]); }
-    else if (e.key === 'Escape') setQ('');
   };
 
   return (
