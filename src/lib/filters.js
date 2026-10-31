@@ -1,5 +1,5 @@
 export const DEFAULT_FILTERS = {
-  yearFrom: 1990, yearTo: 2025, type: 'both', minPA: 2000, minIP: 600, minG: 0,
+  yearFrom: 2000, yearTo: 2025, type: 'both', minPA: 4000, minIP: 600, minG: 0,
   positions: [], teams: [], teamMode: 'or',
 };
 
