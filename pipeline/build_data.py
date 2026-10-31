@@ -56,6 +56,9 @@ PIT_LEADERS = [(c, 'hi', 'count') for c in ['W', 'L', 'G', 'GS', 'GF', 'CG', 'SH
 # Lahman's franchise names lag behind name changes; these are the current display names.
 NAME_OVERRIDES = {'CLE': 'Cleveland Guardians', 'FLA': 'Miami Marlins', 'ANA': 'Los Angeles Angels', 'OAK': 'Athletics'}
 
+# team abbreviations that share one per-team career summary row
+TEAM_GROUP = {'OAK': 'ATH'}
+
 CAREER_QUAL_PA = 3000      # career rate-stat qualification for records / active leaders
 CAREER_QUAL_OUTS = 3000    # = 1000 IP
 N_SHARDS = 128
@@ -518,7 +521,7 @@ def main():
         # per-team career rows
         tm = defaultdict(list)
         for x in stints:
-            tm[x['TeamBR']].append(x)
+            tm[TEAM_GROUP.get(x['TeamBR'], x['TeamBR'])].append(x)   # OAK + ATH are one franchise: one summary row
         if len(tm) > 1:
             add = BAT_ADD if kind == 'b' else PIT_ADD
             for t, xs in sorted(tm.items(), key=lambda kv: min(int(x['yearID']) for x in kv[1])):
@@ -531,6 +534,7 @@ def main():
                     tpos = pos_string({c: sum((x.get(g) or 0) for x in xs) for g, c in POS_COLS},
                                       sum({int(x['yearID']): x['tG'] for x in xs}.values()),
                                       sum((x.get('G_ph') or 0) for x in xs), sum((x.get('G_pr') or 0) for x in xs))
+                t = max(xs, key=lambda x: int(x['yearID']))['TeamBR']   # label with the most recent abbreviation
                 rows.append({'k': 'm', 'v': row_vals(agg.iloc[0].to_dict(), kind, icols, None,
                                                      f'{t} ({n} yr' + ('s' if n != 1 else '') + ')', None, None,
                                                      None, tpos)})
