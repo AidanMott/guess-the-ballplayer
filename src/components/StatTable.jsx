@@ -12,6 +12,17 @@ function Awards({ value }) {
   ));
 }
 
+// Small championship ring shown beside the team in seasons the team won the World Series.
+function WsRing() {
+  return (
+    <svg className="ws-ring" viewBox="0 0 16 16" width="13" height="13" role="img" aria-label="World Series champion">
+      <title>World Series champion</title>
+      <circle cx="8" cy="10" r="4.6" fill="none" stroke="#d4a017" strokeWidth="2" />
+      <path d="M5.2 4.2 6.6 2h2.8l1.4 2.2L8 7z" fill="#e8f4ff" stroke="#6f8fb3" strokeWidth=".8" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 // Career and per-team career rows merge Season, Age, Team and Lg into one label cell.
 const LEAD = 4;
 const NUMERIC_LEFT = new Set(['Season', 'Team', 'Lg', 'Pos', 'Awards']);
@@ -63,7 +74,7 @@ function withGaps(rows) {
   return out;
 }
 
-export default function StatTable({ kind, cols, rows, showWar }) {
+export default function StatTable({ kind, cols, rows, showWar, showRings = true }) {
   const box = useRef(null);
   const [more, setMore] = useState({ left: false, right: false });
   // Show an arrow at an edge while there is more table to scroll to on that side.
@@ -117,6 +128,7 @@ export default function StatTable({ kind, cols, rows, showWar }) {
                     <td key={i} style={leadStyle(r, i < LEAD)} className={[NUMERIC_LEFT.has(col) ? 'left' : '', col === 'Lg' ? 'lg-sep' : '', cellClass(r.f && r.f[i])].filter(Boolean).join(' ')}>
                       {col === 'Season' && r.k === 'x' && r.grp ? `${r.grp === 'last' ? '└' : '├'} ` : ''}
                       {col === 'Awards' && v ? <Awards value={v} /> : col === 'Team' && r.k === 'T' ? String(v).replace(/^(\d+) Tms$/, '$1TM') : formatCell(col, v)}
+                      {col === 'Team' && r.ws && showRings ? <>{' '}<WsRing /></> : null}
                     </td>
                   );
                 })}

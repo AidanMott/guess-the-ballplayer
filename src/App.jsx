@@ -31,6 +31,7 @@ export default function App() {
   const [confirmGiveUp, setConfirmGiveUp] = useState(false);
   const [logOpen, setLogOpen] = useState(false);
   const [theme, setTheme] = useState(() => document.documentElement.dataset.theme === 'light' ? 'light' : 'dark');
+  const [showRings, setShowRings] = useState(() => { try { return localStorage.getItem('rg.rings') !== 'off'; } catch { return true; } });
   const played = useRef(new Set());
   const booted = useRef(false);
   const request = useRef(0);
@@ -44,6 +45,10 @@ export default function App() {
     document.documentElement.dataset.theme = theme;
     try { localStorage.setItem('rg.theme', theme); } catch { /* ignore */ }
   }, [theme]);
+
+  useEffect(() => {
+    try { localStorage.setItem('rg.rings', showRings ? 'on' : 'off'); } catch { /* ignore */ }
+  }, [showRings]);
 
   // Filters are remembered, so a refresh comes back with the same settings.
   useEffect(() => { if (filters) saveFilters(filters); }, [filters]);
@@ -122,10 +127,16 @@ export default function App() {
   return (
     <main className={`wrap${phase === 'playing' ? ' has-dock' : ''}`}>
       <header className="site-header">
-        <button className="ghost theme-toggle" onClick={() => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))}
-                aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}>
-          {theme === 'dark' ? '☀ Light' : '☾ Dark'}
-        </button>
+        <div className="header-tools">
+          <button className="ghost theme-toggle" aria-pressed={showRings} onClick={() => setShowRings((r) => !r)}
+                  title="Show a ring next to the team in seasons it won the World Series">
+            Rings: {showRings ? 'On' : 'Off'}
+          </button>
+          <button className="ghost theme-toggle" onClick={() => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))}
+                  aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}>
+            {theme === 'dark' ? '☀ Light' : '☾ Dark'}
+          </button>
+        </div>
         <h1>Guess the Ballplayer</h1>
         <p className="muted">
           Identify the player from their career stat table.
@@ -156,8 +167,8 @@ export default function App() {
 
       {showTables && (
         <>
-          {entry.bat && <StatTable kind="bat" cols={meta.batCols} rows={entry.bat} showWar={meta.warLoaded} />}
-          {entry.pit && <StatTable kind="pit" cols={meta.pitCols} rows={entry.pit} showWar={meta.warLoaded} />}
+          {entry.bat && <StatTable kind="bat" cols={meta.batCols} rows={entry.bat} showWar={meta.warLoaded} showRings={showRings} />}
+          {entry.pit && <StatTable kind="pit" cols={meta.pitCols} rows={entry.pit} showWar={meta.warLoaded} showRings={showRings} />}
         </>
       )}
 

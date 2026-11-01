@@ -56,6 +56,15 @@ PIT_LEADERS = [(c, 'hi', 'count') for c in ['W', 'L', 'G', 'GS', 'GF', 'CG', 'SH
 # Lahman's franchise names lag behind name changes; these are the current display names.
 NAME_OVERRIDES = {'CLE': 'Cleveland Guardians', 'FLA': 'Miami Marlins', 'ANA': 'Los Angeles Angels', 'OAK': 'Athletics'}
 
+# World Series winners are read from Lahman's Teams.WSWin (through 2025). For a season Lahman doesn't cover yet,
+# list the champion's Baseball-Reference abbreviation here, e.g. WS_EXTRA = {2026: 'LAD'}
+WS_EXTRA = {2026: 'MIL'}
+
+
+def won_ws(x):
+    return x.get('WSWin') == 'Y' or x['TeamBR'] == WS_EXTRA.get(int(x['yearID']))
+
+
 # team abbreviations that share one per-team career summary row
 TEAM_GROUP = {'OAK': 'ATH'}
 
@@ -290,7 +299,7 @@ def main():
     # current league/division per franchise (used to group the team picker)
     fr_div = (teams[teams.yearID == last_year].drop_duplicates('franchID')
               .set_index('franchID')[['lgID', 'divID']].to_dict('index'))
-    teams = teams[['yearID', 'lgID', 'teamID', 'franchID', 'G', 'BPF', 'PPF', 'teamIDBR']].rename(columns={'G': 'tG'})
+    teams = teams[['yearID', 'lgID', 'teamID', 'franchID', 'G', 'BPF', 'PPF', 'teamIDBR', 'WSWin']].rename(columns={'G': 'tG'})
     teams = teams.drop_duplicates(['yearID', 'teamID'])
     lgG = teams.groupby(['yearID', 'lgID']).tG.max().to_dict()
     yrG = teams.groupby('yearID').tG.max().to_dict()
@@ -497,18 +506,18 @@ def main():
             if r['n_tm'] > 1 or len(ss) > 1:
                 lg = r['lg_first'] if r['lg_n'] == 1 else 'MLB'
                 rows.append({'k': 'T', 'v': row_vals(r, kind, icols, yr, f"{r['n_tm']}TM", lg, age, aw, pos),
-                             **({'f': fl} if fl else {})})
+                             **({'f': fl} if fl else {}), **({'ws': 1} if any(won_ws(x) for x in ss) else {})})
                 for x in ss:
                     xp = None
                     if kind == 'b':
                         xp = pos_string({c: (x.get(g) or 0) for g, c in POS_COLS}, x['tG'], x.get('G_ph'), x.get('G_pr'))
                     xfl = flags_to_idx(sflags.get((pid, yr, int(x['stint']))), icols)
                     rows.append({'k': 'x', 'v': row_vals(x, kind, icols, yr, x['TeamBR'], x['lgID'], age, None, xp),
-                                 **({'f': xfl} if xfl else {})})
+                                 **({'f': xfl} if xfl else {}), **({'ws': 1} if won_ws(x) else {})})
             else:
                 x = ss[0]
                 rows.append({'k': 'y', 'v': row_vals(r, kind, icols, yr, x['TeamBR'], x['lgID'], age, aw, pos),
-                             **({'f': fl} if fl else {})})
+                             **({'f': fl} if fl else {}), **({'ws': 1} if won_ws(x) else {})})
         # career
         nyrs = len(seasons)
         cf = flags_to_idx(cflag, icols)
